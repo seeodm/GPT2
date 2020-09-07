@@ -1,4 +1,4 @@
-# GPT-2 PyTorch Implementation
+# GPT-2 PyTorch Implementation with SentencePiece
 
 ![build](https://github.com/affjljoo3581/GPT2/workflows/build/badge.svg)
 ![GitHub](https://img.shields.io/github/license/affjljoo3581/GPT2)
@@ -31,6 +31,7 @@ This project is a PyTorch implementation of OpenAI GPT-2 model. It provides mode
 * torch
 * numpy
 * matplotlib
+* sentencepiece
 
 ## Usage
 
