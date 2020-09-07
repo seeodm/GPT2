@@ -17,6 +17,8 @@ class Vocab(object):
         self.cls_token = cls_token
         self.sep_token = sep_token
 
+        self.additional_tokens = [unk_token, bos_token, eos_token, pad_token, cls_token, sep_token]
+
         with open(vocab_path, 'r', encoding='utf-8') as fp:
             # The additional tokens would be inserted before the words.
             self.words = fp.read().split()[::2]
