@@ -1,6 +1,7 @@
 import regex as re
 from gpt2.data import Vocab
 from typing import List
+import sentencepiece as spm
 
 _CHINESE_CHAR_RANGE = ('\u4e00-\u9fff\u3400-\u4dbf\U00020000-\U0002a6df'
                        '\U0002a700-\U0002b73f\U0002b740-\U0002b81f'
@@ -12,8 +13,10 @@ _PUNCTUATION_RANGE = '\\p{P}\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e'
 class Tokenizer(object):
     def __init__(self,
                  vocab: Vocab,
+                 model: str,
                  max_word_len: int = 100):
         self.vocab = vocab
+        self.spm_tokenizer = spm.SentencePieceProcessor(model_file=model)
         self.exclude_tokens = [vocab.unk_token] + vocab.additional_tokens
         self.max_word_len = max_word_len
 
@@ -23,15 +26,7 @@ class Tokenizer(object):
                 for token in self._tokenize(normalized)]
 
     def decode(self, tokens: List[str]) -> str:
-        return (' '.join(tokens).replace(' ##', '')
-                                .replace(' .', '.')
-                                .replace(' ?', '?')
-                                .replace(' !', '!')
-                                .replace(' ,', ',')
-                                .replace(' \' ', '\'')
-                                .replace(' \" ', '\"')
-                                .replace('\'\'', '\' \'')
-                                .replace('\"\"', "\" \""))
+        return self.spm_tokenizer.DecodePieces(tokens)
 
     def _normalize(self, text: str) -> List[str]:
         # Normalize whitespace characters and remove control characters.
@@ -51,31 +46,4 @@ class Tokenizer(object):
         return ' '.join(normalized).split()
 
     def _tokenize(self, text: str) -> List[str]:
-        subwords = []
-        for token in text.split():
-            if len(token) > self.max_word_len:
-                subwords.append(self.vocab.unk_token)
-                continue
-
-            children = []
-            while token and token != '##':
-                current, token = token, ''
-                while current and current != '##':
-                    # If subword is in vocabulary, add to list and re-calibrate
-                    # the target token.
-                    if current in self.vocab:
-                        children.append(current)
-                        token = '##' + token
-                        break
-
-                    # If subword is not in vocabulary, reduce the search range
-                    # and test it again.
-                    current, token = current[:-1], current[-1] + token
-
-                # Process current token as `unknown` since there is no any
-                # proper tokenization (in greedy).
-                if not current:
-                    children, token = None, None
-            subwords += children or [self.vocab.unk_token]
-
-        return subwords
+        return self.spm_tokenizer.EncodeAsPieces(text)
