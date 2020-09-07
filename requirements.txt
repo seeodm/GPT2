@@ -3,3 +3,4 @@ tqdm
 torch
 numpy
 matplotlib
+sentencepiece
