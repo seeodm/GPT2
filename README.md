@@ -121,13 +121,14 @@ The detail of command-line usage is as follows:
 After training GPT-2, you can generate sentences with your trained model in interactive mode.
 
     $ python -m gpt2 generate --vocab_path      build/vocab.txt \
+                              --spm_model_path  build/vocab.model \
                               --model_path      model.pth \
                               --seq_len         64 \
                               --nucleus_prob    0.8
 
 The detail of command-line usage is as follows:
 
-    usage: gpt2 generate [-h] --vocab_path VOCAB_PATH --model MODEL
+    usage: gpt2 generate [-h] --vocab_path VOCAB_PATH --spm_model_path SPMMODEL --model MODEL
                          [--seq_len SEQ_LEN] [--layers LAYERS] [--heads HEADS]
                          [--dims DIMS] [--rate RATE] [--top_p TOP_P] [--use_gpu]
 
@@ -135,6 +136,8 @@ The detail of command-line usage is as follows:
       -h, --help            show this help message and exit
       --vocab_path VOCAB_PATH
                             vocabulary file path
+      --spm_model_path  SPM_MODEL_PATH
+                            SentencePiece model file path
       --model_path MODEL_PATH
                             trained GPT-2 model file path
 
