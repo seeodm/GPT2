@@ -7,9 +7,10 @@ from typing import List
 
 
 class GPT2GenerationSpec(GenerationSpec):
-    def __init__(self, vocab_path: str, seq_len: int, layers: int, heads: int,
+    def __init__(self, vocab_path: str, spm_model_path: str, seq_len: int, layers: int, heads: int,
                  dims: int, rate: int):
         self.vocab_path = vocab_path
+        self.spm_model_path = spm_model_path
         self.seq_len = seq_len
         self.layers = layers
         self.heads = heads
@@ -18,7 +19,7 @@ class GPT2GenerationSpec(GenerationSpec):
 
     def initialize(self):
         self.vocab = Vocab(vocab_path=self.vocab_path)
-        self.tokenizer = Tokenizer(vocab=self.vocab)
+        self.tokenizer = Tokenizer(vocab=self.vocab, model=self.spm_model_path)
 
     def construct_model(self) -> nn.Module:
         return Transformer(layers=self.layers, pad_idx=self.vocab.pad_idx,
@@ -40,7 +41,7 @@ class GPT2GenerationSpec(GenerationSpec):
 
 def generate_sentence_with_gpt2_model(args: argparse.Namespace):
     spec = GPT2GenerationSpec(
-        vocab_path=args.vocab_path, seq_len=args.seq_len, layers=args.layers,
+        vocab_path=args.vocab_path, spm_model_path=args.spm_model_path, seq_len=args.seq_len, layers=args.layers,
         heads=args.heads, dims=args.dims, rate=args.rate)
     config = GenerateConfig(
         seq_len=args.seq_len, nucleus_prob=args.nucleus_prob,
@@ -59,6 +60,8 @@ def add_subparser(subparsers: argparse._SubParsersAction):
 
     parser.add_argument('--vocab_path', required=True,
                         help='vocabulary file path')
+    parser.add_argument('--spm_model_path', required=True,
+                        help='sentencepiece model path')
     parser.add_argument('--model_path', required=True,
                         help='trained GPT-2 model file path')
 
